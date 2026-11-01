@@ -11,12 +11,15 @@
     "dist": "npm run dist:mac && npm run dist:win"
   },
   "dependencies": {
-    "sharp": "^0.34.5",
-    "libheif-js": "1.23.5"
+    "libheif-js": "1.23.5",
+    "sharp": "0.35.5"
   },
   "devDependencies": {
     "electron": "^45.0.0",
     "electron-builder": "^26.0.12"
+  },
+  "overrides": {
+    "minimatch": "11.0.1"
   },
   "build": {
     "appId": "com.ppfc.imageconverter",
