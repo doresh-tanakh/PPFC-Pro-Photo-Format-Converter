@@ -1,7 +1,8 @@
 ## 다운로드
 
-macOS와 Windows 설치 파일은 [최신 PPFC 릴리스 페이지](https://github.com/doresh-tanakh/PPFC-Pro-Photo-Format-Converter/releases/latest)에서 받을 수 있습니다. 페이지에서 사용하는 운영체제에 맞는 `.pkg` 또는 `.exe`를 선택하세요.
-
+- [macOS 설치 파일 (.pkg)](https://github.com/doresh-tanakh/PPFC-Pro-Photo-Format-Converter/releases/download/v1.0.3/PPFC-1.0.2-arm64.pkg)
+- [Windows 설치 파일 (.exe)](https://github.com/doresh-tanakh/PPFC-Pro-Photo-Format-Converter/releases/download/v1.0.3/PPFC.Setup.1.0.2.exe)
+- [모든 버전과 변경 사항](https://github.com/doresh-tanakh/PPFC-Pro-Photo-Format-Converter/releases/latest)
 # PPFC — Pro Photo Format Converter
 
 macOS와 Windows용 로컬 이미지 일괄 변환기입니다. Electron + sharp/libvips를 사용하고 사진을 서버에 업로드하지 않습니다.
