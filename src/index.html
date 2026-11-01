@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<title>Forma — 이미지 변환</title><link rel="stylesheet" href="styles.css"><script defer src="renderer.js"></script>
+</head>
+<body>
+<main class="app">
+<header class="top"><div class="brand"><div class="mark"><span></span><span></span><span></span><span></span></div><span>PPFC</span></div><div class="local"><i></i> 모든 변환은 이 기기에서 처리됩니다</div></header>
+<section class="intro"><div class="eyebrow">IMAGE CONVERTER <span>01 / OFFLINE</span></div><h1>사진 포맷을<br><em>자유롭게</em> 바꾸세요.</h1><p>HEIC부터 WebP, PNG까지. 여러 장도 한 번에 변환합니다.</p></section>
+<section class="workspace">
+<div class="leftcol">
+<div id="dropzone" class="dropzone"><div class="upload-icon"><svg viewBox="0 0 24 24"><path d="M12 16V4m0 0L7 9m5-5 5 5M5 14v5h14v-5"/></svg></div><strong>사진을 여기에 추가하세요</strong><span>여러 파일을 한 번에 선택할 수 있습니다</span><button id="addFiles" class="button light">사진 선택 <b>＋</b></button></div>
+<div class="file-heading"><span>변환 목록 <b id="count">0</b></span><button id="clear" class="text-button" disabled>목록 비우기</button></div>
+<div id="fileList" class="file-list"><div class="empty">추가한 사진이 여기에 표시됩니다</div></div>
+</div>
+<aside class="settings">
+<div class="panel-title"><span class="number">1</span><div><b>출력 포맷</b><small>원하는 파일 형식을 선택하세요</small></div></div>
+<div class="format-wrap"><label for="format">변환할 형식</label><select id="format"><option value="jpeg">JPG <span>·</span> 가장 범용적</option><option value="png">PNG <span>·</span> 투명 배경</option><option value="webp">WebP <span>·</span> 웹 최적화</option><option value="avif">AVIF <span>·</span> 고효율</option><option value="tiff">TIFF <span>·</span> 고품질 보관</option><option value="gif">GIF <span>·</span> 애니메이션</option><option value="heif">HEIF <span>·</span> 고효율</option></select></div>
+<div class="quality-row"><label for="quality">품질</label><div><input id="quality" type="range" min="1" max="100" value="90"><span id="qualityVal">90</span></div></div>
+<div class="size-title">크기 조정 <small>선택 사항</small></div><div class="dimensions"><label><span>너비</span><input id="width" type="number" min="1" max="30000" placeholder="원본 유지"></label><span class="multiply">×</span><label><span>높이</span><input id="height" type="number" min="1" max="30000" placeholder="원본 유지"></label></div>
+<div class="divider"></div>
+<div class="panel-title"><span class="number">2</span><div><b>저장 위치</b><small>변환된 파일을 저장할 폴더</small></div></div>
+<button id="chooseFolder" class="folder"><span class="folder-icon">▱</span><span id="folderName">저장 폴더 선택</span><span class="arrow">↗</span></button>
+<div class="privacy"><span>✳</span><p><b>사진은 외부로 전송되지 않습니다.</b><br>인터넷 연결 없이 기기에서 안전하게 변환합니다.</p></div>
+<button id="convert" class="button primary" disabled><span>변환 시작</span><b>→</b></button>
+<div class="status" id="status">사진과 저장 위치를 선택해 주세요</div>
+</aside>
+</section>
+<footer><span>PRO PHOTO FORMAT CONVERTER <span class="dot">·</span> LOCAL IMAGE TOOL</span><span id="codecNote">HEIC 및 일부 포맷 지원은 설치 빌드의 코덱에 따라 달라질 수 있습니다.</span></footer>
+</main>
+</body></html>
