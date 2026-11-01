@@ -71,10 +71,12 @@ ipcMain.handle('convert:batch', async (event, payload) => {
   if (!FORMATS.has(payload.format)) throw new Error('지원하지 않는 출력 형식입니다.');
   if (!outputDir) throw new Error('먼저 저장 폴더를 선택해 주세요.');
   const od = await fs.realpath(outputDir);
+  const total = payload.items.length;
+  let completed = 0;
   for (const item of payload.items) {
     const p = path.resolve(String(item?.path || ''));
     const id = item?.id;
-    if (!approvedFiles.has(p)) { send('convert:result', { id, ok:false, error:'파일 선택을 다시 해 주세요.' }); continue; }
+    if (!approvedFiles.has(p)) { send('convert:result', { id, ok:false, error:'파일 선택을 다시 해 주세요.' }); completed++; send('convert:progress', { completed, total, percent: Math.round(completed * 100 / total) }); continue; }
     let temp;
     try {
       const stat = await fs.stat(p);
@@ -118,6 +120,8 @@ ipcMain.handle('convert:batch', async (event, payload) => {
       await fs.unlink(temp); temp = null;
       send('convert:result', { id, ok:true, output:path.basename(dest) });
     } catch (e) { if (temp) await fs.unlink(temp).catch(()=>{}); send('convert:result', { id, ok:false, error: conciseError(e) }); }
+    completed++;
+    send('convert:progress', { completed, total, percent: Math.round(completed * 100 / total) });
   }
   send('convert:done', {}); return true;
 });

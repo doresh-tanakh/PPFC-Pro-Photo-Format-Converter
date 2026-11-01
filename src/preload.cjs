@@ -12,5 +12,6 @@ contextBridge.exposeInMainWorld('forma', Object.freeze({
   getFormats: () => ipcRenderer.invoke('formats:get'),
   convert: options => ipcRenderer.invoke('convert:batch', options),
   onResult: callback => { const fn = (_e, value) => callback(value); ipcRenderer.on('convert:result', fn); return () => ipcRenderer.removeListener('convert:result', fn); },
-  onDone: callback => { const fn = () => callback(); ipcRenderer.on('convert:done', fn); return () => ipcRenderer.removeListener('convert:done', fn); }
+  onDone: callback => { const fn = () => callback(); ipcRenderer.on('convert:done', fn); return () => ipcRenderer.removeListener('convert:done', fn); },
+  onProgress: callback => { const fn = (_e, value) => callback(value); ipcRenderer.on('convert:progress', fn); return () => ipcRenderer.removeListener('convert:progress', fn); }
 }));
