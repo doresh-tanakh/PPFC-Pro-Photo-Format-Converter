@@ -59,13 +59,15 @@ jobs:
       - name: Publish installers to GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
           RELEASE_TAG: ${{ github.ref_name }}
         run: |
-          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
-            gh release upload "$RELEASE_TAG" release/*.pkg release/*.exe --clobber
+          if gh release view "$RELEASE_TAG" --repo "$GH_REPO" >/dev/null 2>&1; then
+            gh release upload "$RELEASE_TAG" release/*.pkg release/*.exe --clobber --repo "$GH_REPO"
           else
             gh release create "$RELEASE_TAG" release/*.pkg release/*.exe \
               --verify-tag \
               --title "PPFC $RELEASE_TAG" \
-              --notes "macOS and Windows installers for Pro Photo Format Converter."
+              --notes "macOS and Windows installers for Pro Photo Format Converter." \
+              --repo "$GH_REPO"
           fi
