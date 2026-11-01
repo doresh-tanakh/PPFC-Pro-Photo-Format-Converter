@@ -4,10 +4,10 @@ macOS와 Windows용 로컬 이미지 일괄 변환기입니다. Electron + sharp
 
 ## 개발 및 패키징
 
-Node.js 22.12 이상 필요. Electron 45 기반으로 구성했습니다. HEIC/HEIF 디코딩은 libheif-js WebAssembly를 사용합니다.
+최종 사용자는 Node.js를 설치할 필요가 없습니다. Electron 앱과 Node 런타임이 macOS `.pkg` 및 Windows `.exe` 설치 파일에 함께 포함됩니다. Node.js 24는 소스에서 직접 빌드할 때만 필요합니다. Electron 45 기반으로 구성했습니다. HEIC/HEIF 디코딩은 libheif-js WebAssembly를 사용합니다.
 
 ```sh
-npm install
+npm ci
 npm start
 npm run dist:mac   # macOS .pkg 설치 파일 (macOS 호스트 필요)
 npm run dist:win   # Windows NSIS .exe 설치 파일 (Windows 호스트 권장)
@@ -23,8 +23,15 @@ npm run dist:win   # Windows NSIS .exe 설치 파일 (Windows 호스트 권장)
 - 기존 파일은 절대 덮어쓰지 않으며 이름 충돌 시 번호를 붙임
 - 네트워크 연결 및 원격 코드 불필요
 - 렌더러 샌드박스, Context Isolation, restrictive CSP, 제한된 IPC
+- renderer에서 원격 네트워크, 새 창, WebView, OS 권한 요청 차단
 - 입력 이미지 크기 상한 1억 6천만 픽셀, 파일 크기 상한 2 GB로 이미지 폭탄 위험 완화
+- 기존 출력 파일을 덮어쓰지 않고 임시 파일을 같은 폴더에서 안전하게 생성
+- npm lockfile과 CI의 production dependency audit으로 의존성 버전 고정 및 알려진 런타임 취약점 확인
 
 ## 포맷 지원 참고
 
 HEIC/HEIF 입력은 libheif-js 1.23.5 WebAssembly 디코더로 처리하므로 sharp 기본 바이너리의 HEVC 지원에 의존하지 않습니다. 안전을 위해 HEIC/HEIF는 200 MB 및 4천만 픽셀 한도를 둡니다. HEIF/HEIC 출력 인코딩은 sharp/libvips에 HEVC 인코더가 필요할 수 있어 배포 전에 각 플랫폼에서 확인해야 합니다. 모든 카메라 RAW 변형/특허 코덱 지원을 보장하지 않습니다.
+
+## 배포 보안 참고
+
+`npm audit --omit=dev` 기준 배포 앱의 런타임 의존성 취약점은 0건입니다. 빌드 도구 체인에는 npm audit이 보고하는 중간 등급 취약점이 남아 있으므로, 이 저장소는 Actions artifact를 검증용 빌드로 취급합니다. 공개 배포 전에 빌드 도구 업데이트를 재검토하고 macOS Developer ID 서명·공증과 Windows Authenticode 서명을 적용해야 합니다. 현재 설치 파일은 서명되지 않아 운영체제 경고가 표시될 수 있습니다.
