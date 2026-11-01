@@ -13,12 +13,13 @@ npm run dist:mac   # macOS .pkg 설치 파일 (macOS 호스트 필요)
 npm run dist:win   # Windows NSIS .exe 설치 파일 (Windows 호스트 권장)
 ```
 
-저장소의 GitHub Actions는 `main`에 push하면 macOS `.pkg`와 Windows NSIS `.exe`를 각각 빌드해 Actions 아티팩트로 14일간 보관합니다. 설치 파일은 각 OS의 GitHub 러너에서 생성됩니다. 배포 전 macOS .pkg 배포에는 Developer ID Installer 인증서와 공증이 필요합니다. Windows 설치 파일은 Authenticode 코드 서명으로 게시자 경고를 줄일 수 있습니다.
+저장소의 GitHub Actions는 `main`에 push하면 macOS `.pkg`와 Windows NSIS `.exe`를 각각 빌드해 Actions 아티팩트로 14일간 보관합니다. `v*` 태그를 push하면 동일한 빌드를 GitHub Release에 영구 자산으로 게시합니다. 설치 파일은 각 OS의 GitHub 러너에서 생성됩니다. 배포 전 macOS .pkg 배포에는 Developer ID Installer 인증서와 공증이 필요합니다. Windows 설치 파일은 Authenticode 코드 서명으로 게시자 경고를 줄일 수 있습니다.
 
 ## 기능
 
 - 다중 파일 선택 후 일괄 변환 (앱에서 설정한 개수 제한 없음, 한 장씩 처리)
 - JPG, PNG, WebP, AVIF, TIFF, GIF, HEIF 출력
+- 사진이 프린터로 들어가는 PPFC 앱 아이콘
 - 품질 및 선택적 크기 조정
 - 기존 파일은 절대 덮어쓰지 않으며 이름 충돌 시 번호를 붙임
 - 네트워크 연결 및 원격 코드 불필요

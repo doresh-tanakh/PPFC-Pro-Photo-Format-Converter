@@ -1,6 +1,6 @@
 {
   "name": "ppfc-image-converter",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Pro Photo Format Converter — local batch image conversion for macOS and Windows",
   "main": "src/main.cjs",
   "license": "MIT",
@@ -18,9 +18,6 @@
     "electron": "^45.0.0",
     "electron-builder": "^26.0.12"
   },
-  "overrides": {
-    "minimatch": "11.0.1"
-  },
   "build": {
     "appId": "com.ppfc.imageconverter",
     "productName": "PPFC",
@@ -30,17 +27,24 @@
     },
     "files": [
       "src/**/*",
+      "assets/**/*",
       "package.json",
       "node_modules/sharp/**/*",
       "node_modules/@img/**/*",
       "node_modules/libheif-js/**/*"
     ],
     "mac": {
-      "target": ["pkg"],
+      "icon": "assets/icon.icns",
+      "target": [
+        "pkg"
+      ],
       "category": "public.app-category.graphics-design"
     },
     "win": {
-      "target": ["nsis"]
+      "icon": "assets/icon.ico",
+      "target": [
+        "nsis"
+      ]
     },
     "nsis": {
       "oneClick": false,
@@ -49,5 +53,8 @@
     "pkg": {
       "installLocation": "/Applications"
     }
+  },
+  "overrides": {
+    "minimatch": "11.0.1"
   }
 }
