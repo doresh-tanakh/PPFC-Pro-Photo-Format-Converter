@@ -82,10 +82,14 @@ ipcMain.handle('convert:batch', async (event, payload) => {
       const real = await fs.realpath(p);
       const isHeif = ['.heic','.heif','.hif'].includes(path.extname(real).toLowerCase());
       if (isHeif && stat.size > 200_000_000) throw new Error('HEIC/HEIF 파일은 안전을 위해 200 MB 이하만 처리합니다.');
-      let source = real, meta, heifSource = false;
+      let source = real, sourceOptions = {}, meta, heifSource = false;
       if (isHeif) {
         const decoded = await decodeHeif(real);
-        source = { input: Buffer.from(decoded.data.buffer, decoded.data.byteOffset, decoded.data.byteLength), raw: { width: decoded.width, height: decoded.height, channels: 4 } };
+        // sharp takes the pixel buffer as its first argument and raw layout in
+        // the second argument. Passing { input, raw } as the first argument is
+        // not a supported sharp input and prevents every HEIC conversion.
+        source = Buffer.from(decoded.data.buffer, decoded.data.byteOffset, decoded.data.byteLength);
+        sourceOptions = { raw: { width: decoded.width, height: decoded.height, channels: 4 } };
         meta = { width: decoded.width, height: decoded.height }; heifSource = true;
       } else {
         meta = await sharp(real, { limitInputPixels: MAX_PIXELS, failOn: 'error', animated: payload.format === 'gif' }).metadata();
@@ -99,7 +103,7 @@ ipcMain.handle('convert:batch', async (event, payload) => {
       temp = path.join(od, `.ppfc-${crypto.randomUUID()}.tmp`);
       const width = safeDimension(payload.width), height = safeDimension(payload.height);
       if (width && height && width * height > MAX_PIXELS) throw new Error('출력 크기는 최대 1억 6천만 픽셀까지 가능합니다.');
-      let pipeline = sharp(source, { limitInputPixels: MAX_PIXELS, failOn: 'error', animated: payload.format === 'gif' });
+      let pipeline = sharp(source, { ...sourceOptions, limitInputPixels: MAX_PIXELS, failOn: 'error', animated: payload.format === 'gif' });
       if (!heifSource) pipeline = pipeline.rotate();
       if (width || height) pipeline = pipeline.resize({ width: width || undefined, height: height || undefined, fit: 'inside', withoutEnlargement: true });
       if (payload.format === 'jpeg') pipeline = pipeline.flatten({ background: payload.background || '#ffffff' }).jpeg({ quality: bounded(payload.quality, 90, 1, 100), mozjpeg: true });
