@@ -1,10 +1,13 @@
 name: Build installers
+
 on:
   push:
     branches: [main]
   workflow_dispatch:
+
 permissions:
   contents: read
+
 jobs:
   package:
     strategy:
@@ -26,7 +29,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 24
-      - run: npm install
+          cache: npm
+      - run: npm ci
+      - name: Audit production dependencies
+        run: npm audit --omit=dev --audit-level=high
       - name: Build installer
         run: npm run ${{ matrix.script }}
         env:
