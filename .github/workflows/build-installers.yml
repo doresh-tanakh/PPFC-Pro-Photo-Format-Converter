@@ -31,8 +31,8 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
-      - name: Audit production dependencies
-        run: npm audit --omit=dev --audit-level=high
+      - name: Audit dependencies
+        run: npm audit --audit-level=moderate
       - name: Build installer
         run: npm run ${{ matrix.script }}
         env:
