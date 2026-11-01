@@ -122,7 +122,9 @@ ipcMain.handle('convert:batch', async (event, payload) => {
   send('convert:done', {}); return true;
 });
 async function decodeHeif(filePath) {
-  const libheif = require('libheif-js/wasm');
+  // Use the self-contained WASM bundle: libheif-js/wasm reads its .wasm file
+  // relative to process.cwd(), which is not stable in packaged desktop apps.
+  const libheif = require('libheif-js/wasm-bundle');
   const bytes = await fs.readFile(filePath);
   const images = new libheif.HeifDecoder().decode(bytes);
   if (!Array.isArray(images) || !images.length) throw new Error('HEIC/HEIF 이미지에서 사진을 찾지 못했습니다.');
