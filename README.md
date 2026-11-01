@@ -34,4 +34,4 @@ HEIC/HEIF 입력은 libheif-js 1.23.5 WebAssembly 디코더로 처리하므로 s
 
 ## 배포 보안 참고
 
-`npm audit --omit=dev` 기준 배포 앱의 런타임 의존성 취약점은 0건입니다. 빌드 도구 체인에는 npm audit이 보고하는 중간 등급 취약점이 남아 있으므로, 이 저장소는 Actions artifact를 검증용 빌드로 취급합니다. 공개 배포 전에 빌드 도구 업데이트를 재검토하고 macOS Developer ID 서명·공증과 Windows Authenticode 서명을 적용해야 합니다. 현재 설치 파일은 서명되지 않아 운영체제 경고가 표시될 수 있습니다.
+현재 잠금된 전체 의존성 트리에서 `npm audit` 취약점은 0건입니다. CI도 설치 과정에서 lockfile을 검증하고 전체 의존성 감사를 통과해야 패키징합니다. macOS Developer ID 서명·공증과 Windows Authenticode 서명은 아직 적용되지 않아, 현재 설치 파일은 운영체제 경고가 표시될 수 있습니다.
