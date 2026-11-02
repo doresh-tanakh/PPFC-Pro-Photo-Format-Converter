@@ -3,9 +3,8 @@ const { contextBridge, ipcRenderer, webUtils } = require('electron');
 contextBridge.exposeInMainWorld('forma', Object.freeze({
   chooseFiles: () => ipcRenderer.invoke('files:choose'),
   registerDroppedFiles: async files => {
-    const items = files.map(file => ({ name: file.name, bytes: file.size, path: webUtils.getPathForFile(file) })).filter(item => item.path);
-    const approved = new Set(await ipcRenderer.invoke('files:approve-drop', items.map(item => item.path)));
-    return items.filter(item => approved.has(item.path)).map(item => ({ ...item, id: `${Date.now()}-${Math.random()}` }));
+    const items = files.map(file => ({ path: webUtils.getPathForFile(file) })).filter(item => item.path);
+    return ipcRenderer.invoke('files:approve-drop', items);
   },
   chooseFolder: () => ipcRenderer.invoke('folder:choose'),
   getFolder: () => ipcRenderer.invoke('folder:get'),

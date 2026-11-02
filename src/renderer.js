@@ -3,8 +3,22 @@ const $ = id => document.getElementById(id);
 let files = [], folder = null, busy = false;
 const results = new Map();
 const format = $('format');
-function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
-function render(){ $('count').textContent=files.length.toLocaleString('ko-KR'); $('clear').disabled=!files.length||busy; $('convert').disabled=!files.length||!folder||busy; $('fileList').innerHTML=files.length?files.map(f=>`<div class="file-row"><div class="thumb">${esc((f.name.split('.').pop()||'IMG').slice(0,3).toUpperCase())}</div><div class="filename" title="${esc(f.name)}">${esc(f.name)}<div class="result" id="r-${f.id}"></div></div><div class="filesize">${size(f.bytes)}</div><button class="remove" data-remove="${f.id}" ${busy?'disabled':''}>×</button></div>`).join(''):'<div class="empty">추가한 사진이 여기에 표시됩니다</div>'; }
+function render(){
+  $('count').textContent=files.length.toLocaleString('ko-KR');
+  $('clear').disabled=!files.length||busy;
+  $('convert').disabled=!files.length||!folder||busy;
+  const list=$('fileList'); list.replaceChildren();
+  if(!files.length){const empty=document.createElement('div');empty.className='empty';empty.textContent='추가한 사진이 여기에 표시됩니다';list.append(empty);return;}
+  for(const file of files){
+    const row=document.createElement('div');row.className='file-row';
+    const thumb=document.createElement('div');thumb.className='thumb';thumb.textContent=(file.name.split('.').pop()||'IMG').slice(0,3).toUpperCase();
+    const name=document.createElement('div');name.className='filename';name.title=file.name;name.append(document.createTextNode(file.name));
+    const result=document.createElement('div');result.className='result';result.id=`r-${file.id}`;name.append(result);
+    const fileSize=document.createElement('div');fileSize.className='filesize';fileSize.textContent=size(file.bytes);
+    const remove=document.createElement('button');remove.className='remove';remove.dataset.remove=file.id;remove.disabled=busy;remove.type='button';remove.textContent='×';remove.setAttribute('aria-label',`${file.name} 제거`);
+    row.append(thumb,name,fileSize,remove);list.append(row);
+  }
+}
 function size(n){return n<1024?`${n} B`:n<1048576?`${(n/1024).toFixed(0)} KB`:`${(n/1048576).toFixed(1)} MB`;}
 $('addFiles').onclick=async()=>{const picked=await window.forma.chooseFiles();const seen=new Set(files.map(x=>x.path));for(const f of picked)if(!seen.has(f.path)){files.push(f);seen.add(f.path)}render();$('status').textContent=`${files.length.toLocaleString('ko-KR')}장 준비됨`;};
 $('clear').onclick=()=>{files=[];render();};
