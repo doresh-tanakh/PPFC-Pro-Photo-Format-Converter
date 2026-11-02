@@ -2,8 +2,8 @@
 
 ## 다운로드
 
-- [macOS 설치 파일 (.pkg)](https://github.com/doresh-tanakh/PPFC-Pro-Photo-Format-Converter/releases/download/v1.0.5/PPFC-1.0.5-arm64.pkg)
-- [Windows 설치 파일 (.exe)](https://github.com/doresh-tanakh/PPFC-Pro-Photo-Format-Converter/releases/download/v1.0.5/PPFC.Setup.1.0.5.exe)
+- [macOS 설치 파일 (.pkg)](https://github.com/doresh-tanakh/PPFC-Pro-Photo-Format-Converter/releases/download/v1.0.6/PPFC-1.0.6-arm64.pkg)
+- [Windows 설치 파일 (.exe)](https://github.com/doresh-tanakh/PPFC-Pro-Photo-Format-Converter/releases/download/v1.0.6/PPFC.Setup.1.0.6.exe)
 - [모든 릴리스와 빌드 결과](https://github.com/doresh-tanakh/PPFC-Pro-Photo-Format-Converter/releases)
 
 macOS와 Windows용 로컬 이미지 일괄 변환기입니다. Electron + sharp/libvips를 사용하고 사진을 서버에 업로드하지 않습니다.
@@ -28,6 +28,7 @@ npm run dist:win   # Windows NSIS .exe 설치 파일 (Windows 호스트 권장)
 - 사진이 프린터로 들어가는 PPFC 앱 아이콘
 - HEIC/HEIF 일괄 처리 시 WebAssembly 디코더를 재사용해 반복 변환 중 메모리 누적 방지
 - 선택 해제된 파일의 승인 토큰 회수 및 동일 파일 재선택 시 토큰 재사용
+- HEIF 이미지 수를 개별 이미지 핸들 할당 전에 검사해 대량 항목 파일의 메모리 사용 제한
 - 여러 사진을 변환할 때 완료 수와 진행률 퍼센트 표시
 - 품질 및 선택적 크기 조정
 - 기존 파일은 절대 덮어쓰지 않으며 이름 충돌 시 번호를 붙임
