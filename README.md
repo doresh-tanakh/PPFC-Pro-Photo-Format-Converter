@@ -2,9 +2,9 @@
 
 ## 다운로드
 
-- [macOS 설치 파일 (.pkg)](https://github.com/doresh-tanakh/PPFC-Pro-Photo-Format-Converter/releases/download/v1.0.7/PPFC-1.0.7-arm64.pkg)
-- [Windows 설치 파일 (.exe)](https://github.com/doresh-tanakh/PPFC-Pro-Photo-Format-Converter/releases/download/v1.0.7/PPFC.Setup.1.0.7.exe)
-- [모든 릴리스와 빌드 결과](https://github.com/doresh-tanakh/PPFC-Pro-Photo-Format-Converter/releases)
+- [macOS 설치 파일 (.pkg)](https://github.com/doresh-tanakh/PPFC-Pro-Photo-Format-Converter/actions/runs/41439226673/artifacts/13138590049)
+- [Windows 설치 파일 (.exe)](https://github.com/doresh-tanakh/PPFC-Pro-Photo-Format-Converter/actions/runs/41439226673/artifacts/13137543365)
+- [모든 릴리스와 빌드 결과](https://github.com/doresh-tanakh/PPFC-Pro-Photo-Format-Converter/actions/workflows/build-installers.yml)\n\nActions 설치 파일은 ZIP 아티팩트로 제공되며 14일 후 만료됩니다.
 
 macOS와 Windows용 로컬 이미지 일괄 변환기입니다. Electron + sharp/libvips를 사용하고 사진을 서버에 업로드하지 않습니다.
 
