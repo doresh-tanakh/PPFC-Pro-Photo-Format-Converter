@@ -6,6 +6,7 @@ const fsConstants = require('node:fs').constants;
 const crypto = require('node:crypto');
 const { URL } = require('node:url');
 const sharp = require('sharp');
+const { createBoundedHeifDecoder } = require('./heif-decoder.cjs');
 
 protocol.registerSchemesAsPrivileged([{ scheme: 'ppfc', privileges: { standard: true, secure: true } }]);
 
@@ -192,11 +193,11 @@ ipcMain.handle('convert:batch', async (event, payload) => {
 });
 async function decodeHeif(bytes) {
   // The self-contained WebAssembly decoder avoids sharp's native HEIF parser.
-  // Reuse one decoder: each new HeifDecoder owns a WASM context, and the
-  // library frees that context only when the same instance decodes again.
+  // Reuse one HEIF context and reject excessive image counts before creating
+  // per-image handles, keeping the untrusted container parser resource-bounded.
   if (!heifDecoder) {
     const libheif = require('libheif-js/wasm-bundle');
-    heifDecoder = new libheif.HeifDecoder();
+    heifDecoder = createBoundedHeifDecoder(libheif, MAX_ANIMATION_FRAMES);
   }
   const images = heifDecoder.decode(bytes);
   if (!Array.isArray(images) || !images.length) throw new Error('HEIC/HEIF 이미지에서 사진을 찾지 못했습니다.');
