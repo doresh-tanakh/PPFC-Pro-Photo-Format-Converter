@@ -1,6 +1,6 @@
 {
   "name": "ppfc-image-converter",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "Pro Photo Format Converter — local batch image conversion for macOS and Windows",
   "main": "src/main.cjs",
   "license": "MIT",
@@ -30,7 +30,8 @@
       "enableEmbeddedAsarIntegrityValidation": true,
       "onlyLoadAppFromAsar": true,
       "loadBrowserProcessSpecificV8Snapshot": false,
-      "grantFileProtocolExtraPrivileges": false
+      "grantFileProtocolExtraPrivileges": false,
+      "resetAdHocDarwinSignature": true
     },
     "directories": {
       "output": "release"
