@@ -15,6 +15,7 @@ const approvedFiles = new Map();
 const approvedByPath = new Map();
 let outputDir = null;
 let heifDecoder = null;
+let heifDecodeQueue = Promise.resolve();
 const FORMATS = new Set(['jpeg','png','webp','avif','tiff','gif','heif']);
 const extFor = { jpeg:'.jpg', png:'.png', webp:'.webp', avif:'.avif', tiff:'.tiff', gif:'.gif', heif:'.heif' };
 const MAX_PIXELS = 40_000_000;
@@ -191,7 +192,14 @@ ipcMain.handle('convert:batch', async (event, payload) => {
   }
   send('convert:done', {}); return true;
 });
-async function decodeHeif(bytes) {
+function decodeHeif(bytes) {
+  // Multiple batch requests can overlap across awaits. Serialize access to
+  // the shared WASM context until pixel decoding and handle cleanup finish.
+  const queued = heifDecodeQueue.then(() => decodeHeifNow(bytes));
+  heifDecodeQueue = queued.catch(() => {});
+  return queued;
+}
+async function decodeHeifNow(bytes) {
   // The self-contained WebAssembly decoder avoids sharp's native HEIF parser.
   // Reuse one HEIF context and reject excessive image counts before creating
   // per-image handles, keeping the untrusted container parser resource-bounded.
