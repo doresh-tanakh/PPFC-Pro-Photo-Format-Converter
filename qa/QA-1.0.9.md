@@ -20,7 +20,9 @@ Date: 2026-11-02 (Asia/Seoul)
 
 The build workflow now runs `qa/renderer.cjs` on both operating systems. After packaging, `qa/packaged-smoke.cjs` starts the actual packaged application and invokes a CI-only smoke path. It generates an AVIF fixture, uses the actual Electron utility process, loads the actual renderer/preload/protocol, supplies deterministic file dialogs, clicks the renderer's file/folder/convert handlers, checks a JPEG output and 100%/1-success UI state, and verifies the HEIF output option is absent. macOS also requires strict signature verification and the existing 10-second startup check. Uploads are blocked if these checks fail.
 
-Packaged CI results are recorded after the builds complete.
+Packaged CI verification: [run 41449180061](https://github.com/doresh-tanakh/PPFC-Pro-Photo-Format-Converter/actions/runs/41449180061). Both macOS and Windows passed renderer regression checks, dependency audit, and the actual packaged AVIF conversion/completion-UI smoke test. macOS also passed strict signature and startup checks.
+
+The first packaged run, [41448781965](https://github.com/doresh-tanakh/PPFC-Pro-Photo-Format-Converter/actions/runs/41448781965), observed the UI before the queued completion IPC messages arrived. A JPEG and success row existed, but the test sampled the running status. The CI-only smoke test now waits up to five seconds for completion; the rerun passed on both OSes. The failed run is retained for auditability.
 
 ## Scope limits
 
