@@ -2,6 +2,7 @@
 const { contextBridge, ipcRenderer, webUtils } = require('electron');
 contextBridge.exposeInMainWorld('forma', Object.freeze({
   chooseFiles: () => ipcRenderer.invoke('files:choose'),
+  revokeFiles: ids => ipcRenderer.invoke('files:revoke', ids),
   registerDroppedFiles: async files => {
     const items = files.map(file => ({ path: webUtils.getPathForFile(file) })).filter(item => item.path);
     return ipcRenderer.invoke('files:approve-drop', items);

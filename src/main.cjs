@@ -11,7 +11,9 @@ protocol.registerSchemesAsPrivileged([{ scheme: 'ppfc', privileges: { standard: 
 
 let win;
 const approvedFiles = new Map();
+const approvedByPath = new Map();
 let outputDir = null;
+let heifDecoder = null;
 const FORMATS = new Set(['jpeg','png','webp','avif','tiff','gif','heif']);
 const extFor = { jpeg:'.jpg', png:'.png', webp:'.webp', avif:'.avif', tiff:'.tiff', gif:'.gif', heif:'.heif' };
 const MAX_PIXELS = 40_000_000;
@@ -118,6 +120,12 @@ ipcMain.handle('files:approve-drop', async (event, items) => {
   }
   return approved;
 });
+ipcMain.handle('files:revoke', (event, ids) => {
+  requireTrustedSender(event);
+  if (!Array.isArray(ids)) return false;
+  for (const id of ids) if (typeof id === 'string') revokeFile(id);
+  return true;
+});
 ipcMain.handle('formats:get', event => { requireTrustedSender(event); return { formats: [...FORMATS], input: sharp.format, heifCodec: sharp.format.heif?.output?.file ?? false }; });
 ipcMain.handle('convert:batch', async (event, payload) => {
   requireTrustedSender(event);
@@ -184,12 +192,18 @@ ipcMain.handle('convert:batch', async (event, payload) => {
 });
 async function decodeHeif(bytes) {
   // The self-contained WebAssembly decoder avoids sharp's native HEIF parser.
-  const libheif = require('libheif-js/wasm-bundle');
-  const images = new libheif.HeifDecoder().decode(bytes);
+  // Reuse one decoder: each new HeifDecoder owns a WASM context, and the
+  // library frees that context only when the same instance decodes again.
+  if (!heifDecoder) {
+    const libheif = require('libheif-js/wasm-bundle');
+    heifDecoder = new libheif.HeifDecoder();
+  }
+  const images = heifDecoder.decode(bytes);
   if (!Array.isArray(images) || !images.length) throw new Error('HEIC/HEIF 이미지에서 사진을 찾지 못했습니다.');
-  const image = images[0];
-  const width = image.get_width(), height = image.get_height();
   try {
+    if (images.length > MAX_ANIMATION_FRAMES) throw new Error(`HEIC/HEIF 이미지가 안전 한도(${MAX_ANIMATION_FRAMES}프레임)를 넘었습니다.`);
+    const image = images[0];
+    const width = image.get_width(), height = image.get_height();
     if (!width || !height || width * height > MAX_HEIF_PIXELS) throw new Error('이미지 크기가 안전 한도(4천만 픽셀)를 넘었습니다.');
     const data = new Uint8ClampedArray(width * height * 4);
     await new Promise((resolve, reject) => image.display({ data, width, height }, result => result ? resolve() : reject(new Error('HEIC/HEIF 픽셀 디코딩에 실패했습니다.'))));
@@ -197,9 +211,20 @@ async function decodeHeif(bytes) {
   } finally { for (const frame of images) if (typeof frame.free === 'function') frame.free(); }
 }
 function approveFile(filePath, stat) {
+  const existingId = approvedByPath.get(filePath);
+  const existing = existingId && approvedFiles.get(existingId);
+  if (existing && existing.size === stat.size && existing.dev === String(stat.dev) && existing.ino === String(stat.ino) && existing.mtimeMs === stat.mtimeMs && existing.ctimeMs === stat.ctimeMs) return existingId;
+  if (existingId) revokeFile(existingId);
   const id = crypto.randomUUID();
   approvedFiles.set(id, { path: filePath, size: stat.size, dev: String(stat.dev), ino: String(stat.ino), mtimeMs: stat.mtimeMs, ctimeMs: stat.ctimeMs });
+  approvedByPath.set(filePath, id);
   return id;
+}
+function revokeFile(id) {
+  const approved = approvedFiles.get(id);
+  if (!approved) return;
+  if (approvedByPath.get(approved.path) === id) approvedByPath.delete(approved.path);
+  approvedFiles.delete(id);
 }
 async function readApprovedFile(approved) {
   const currentPath = await fs.realpath(approved.path);

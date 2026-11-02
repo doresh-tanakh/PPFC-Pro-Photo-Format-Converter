@@ -21,8 +21,8 @@ function render(){
 }
 function size(n){return n<1024?`${n} B`:n<1048576?`${(n/1024).toFixed(0)} KB`:`${(n/1048576).toFixed(1)} MB`;}
 $('addFiles').onclick=async()=>{const picked=await window.forma.chooseFiles();const seen=new Set(files.map(x=>x.path));for(const f of picked)if(!seen.has(f.path)){files.push(f);seen.add(f.path)}render();$('status').textContent=`${files.length.toLocaleString('ko-KR')}장 준비됨`;};
-$('clear').onclick=()=>{files=[];render();};
-$('fileList').onclick=e=>{const b=e.target.closest('[data-remove]');if(b){files=files.filter(x=>x.id!==b.dataset.remove);render();}};
+$('clear').onclick=()=>{const ids=files.map(x=>x.id);files=[];void window.forma.revokeFiles(ids);render();};
+$('fileList').onclick=e=>{const b=e.target.closest('[data-remove]');if(b){const id=b.dataset.remove;files=files.filter(x=>x.id!==id);void window.forma.revokeFiles([id]);render();}};
 $('dropzone').onclick=e=>{if(e.target.closest('button'))return;$('addFiles').click();};
 const dz=$('dropzone');
 for(const type of ['dragenter','dragover'])dz.addEventListener(type,e=>{e.preventDefault();dz.classList.add('dragging');});
