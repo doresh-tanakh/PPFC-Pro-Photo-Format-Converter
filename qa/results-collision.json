@@ -1,0 +1,356 @@
+{
+  "version": "1.0.8",
+  "source": "Extracted installed /Applications/PPFC.app app.asar; real bundled codecs; mocked Electron window/dialog/IPC transport",
+  "work": "/private/tmp/ppfc-qa-results-c3tDUJ",
+  "checks": [
+    {
+      "name": ".jpeg -> jpeg",
+      "status": "PASS"
+    },
+    {
+      "name": ".jpeg -> png",
+      "status": "PASS"
+    },
+    {
+      "name": ".jpeg -> webp",
+      "status": "PASS"
+    },
+    {
+      "name": ".jpeg -> avif",
+      "status": "PASS",
+      "validation": "Decoded in independent sharp process; app HEIF block excluded from output validation"
+    },
+    {
+      "name": ".jpeg -> tiff",
+      "status": "PASS"
+    },
+    {
+      "name": ".jpeg -> gif",
+      "status": "PASS"
+    },
+    {
+      "name": ".png -> jpeg",
+      "status": "PASS"
+    },
+    {
+      "name": ".png -> png",
+      "status": "PASS"
+    },
+    {
+      "name": ".png -> webp",
+      "status": "PASS"
+    },
+    {
+      "name": ".png -> avif",
+      "status": "PASS",
+      "validation": "Decoded in independent sharp process; app HEIF block excluded from output validation"
+    },
+    {
+      "name": ".png -> tiff",
+      "status": "PASS"
+    },
+    {
+      "name": ".png -> gif",
+      "status": "PASS"
+    },
+    {
+      "name": ".webp -> jpeg",
+      "status": "PASS"
+    },
+    {
+      "name": ".webp -> png",
+      "status": "PASS"
+    },
+    {
+      "name": ".webp -> webp",
+      "status": "PASS"
+    },
+    {
+      "name": ".webp -> avif",
+      "status": "PASS",
+      "validation": "Decoded in independent sharp process; app HEIF block excluded from output validation"
+    },
+    {
+      "name": ".webp -> tiff",
+      "status": "PASS"
+    },
+    {
+      "name": ".webp -> gif",
+      "status": "PASS"
+    },
+    {
+      "name": ".avif -> jpeg",
+      "status": "FAIL",
+      "error": "Input buffer contains unsupported image format\n\nfalse !== true\n"
+    },
+    {
+      "name": ".avif -> png",
+      "status": "FAIL",
+      "error": "Input buffer contains unsupported image format\n\nfalse !== true\n"
+    },
+    {
+      "name": ".avif -> webp",
+      "status": "FAIL",
+      "error": "Input buffer contains unsupported image format\n\nfalse !== true\n"
+    },
+    {
+      "name": ".avif -> avif",
+      "status": "FAIL",
+      "error": "Input buffer contains unsupported image format\n\nfalse !== true\n"
+    },
+    {
+      "name": ".avif -> tiff",
+      "status": "FAIL",
+      "error": "Input buffer contains unsupported image format\n\nfalse !== true\n"
+    },
+    {
+      "name": ".avif -> gif",
+      "status": "FAIL",
+      "error": "Input buffer contains unsupported image format\n\nfalse !== true\n"
+    },
+    {
+      "name": ".tiff -> jpeg",
+      "status": "PASS"
+    },
+    {
+      "name": ".tiff -> png",
+      "status": "PASS"
+    },
+    {
+      "name": ".tiff -> webp",
+      "status": "PASS"
+    },
+    {
+      "name": ".tiff -> avif",
+      "status": "PASS",
+      "validation": "Decoded in independent sharp process; app HEIF block excluded from output validation"
+    },
+    {
+      "name": ".tiff -> tiff",
+      "status": "PASS"
+    },
+    {
+      "name": ".tiff -> gif",
+      "status": "PASS"
+    },
+    {
+      "name": ".gif -> jpeg",
+      "status": "PASS"
+    },
+    {
+      "name": ".gif -> png",
+      "status": "PASS"
+    },
+    {
+      "name": ".gif -> webp",
+      "status": "PASS"
+    },
+    {
+      "name": ".gif -> avif",
+      "status": "PASS",
+      "validation": "Decoded in independent sharp process; app HEIF block excluded from output validation"
+    },
+    {
+      "name": ".gif -> tiff",
+      "status": "PASS"
+    },
+    {
+      "name": ".gif -> gif",
+      "status": "PASS"
+    },
+    {
+      "name": ".heic -> jpeg",
+      "status": "PASS"
+    },
+    {
+      "name": ".heic -> png",
+      "status": "PASS"
+    },
+    {
+      "name": ".heic -> webp",
+      "status": "PASS"
+    },
+    {
+      "name": ".heic -> avif",
+      "status": "PASS",
+      "validation": "Decoded in independent sharp process; app HEIF block excluded from output validation"
+    },
+    {
+      "name": ".heic -> tiff",
+      "status": "PASS"
+    },
+    {
+      "name": ".heic -> gif",
+      "status": "PASS"
+    },
+    {
+      "name": ".svg -> jpeg",
+      "status": "PASS"
+    },
+    {
+      "name": ".svg -> png",
+      "status": "PASS"
+    },
+    {
+      "name": ".svg -> webp",
+      "status": "PASS"
+    },
+    {
+      "name": ".svg -> avif",
+      "status": "PASS",
+      "validation": "Decoded in independent sharp process; app HEIF block excluded from output validation"
+    },
+    {
+      "name": ".svg -> tiff",
+      "status": "PASS"
+    },
+    {
+      "name": ".svg -> gif",
+      "status": "PASS"
+    },
+    {
+      "name": "1000-item batch and monotonic progress",
+      "status": "PASS"
+    },
+    {
+      "name": "existing output not overwritten",
+      "status": "PASS"
+    },
+    {
+      "name": "resize 32x24 to 16x12",
+      "status": "PASS"
+    },
+    {
+      "name": "reject invalid dimensions and clean temp",
+      "status": "PASS"
+    },
+    {
+      "name": "reject unapproved file",
+      "status": "PASS"
+    },
+    {
+      "name": "reject untrusted IPC sender",
+      "status": "PASS"
+    },
+    {
+      "name": "reject modified approved input",
+      "status": "PASS"
+    },
+    {
+      "name": "reject revoked approval",
+      "status": "PASS"
+    },
+    {
+      "name": "corrupt input fails but next file succeeds",
+      "status": "PASS"
+    },
+    {
+      "name": "HEIF export availability",
+      "status": "FAIL",
+      "error": "이 포맷을 처리할 코덱이 설치 빌드에 없습니다.\n\nfalse !== true\n"
+    },
+    {
+      "name": "eight concurrent HEIC batch requests",
+      "status": "PASS"
+    },
+    {
+      "name": "protocol rejects unexpected origin/path",
+      "status": "PASS"
+    }
+  ],
+  "pass": 53,
+  "fail": 7,
+  "avifIndependentValidation": [
+    {
+      "file": "input (1).avif",
+      "info": {
+        "format": "raw",
+        "width": 32,
+        "height": 24,
+        "channels": 4,
+        "depth": "uchar",
+        "premultiplied": false,
+        "hasAlpha": true,
+        "size": 3072
+      }
+    },
+    {
+      "file": "input (2).avif",
+      "info": {
+        "format": "raw",
+        "width": 32,
+        "height": 24,
+        "channels": 4,
+        "depth": "uchar",
+        "premultiplied": false,
+        "hasAlpha": true,
+        "size": 3072
+      }
+    },
+    {
+      "file": "input (3).avif",
+      "info": {
+        "format": "raw",
+        "width": 32,
+        "height": 24,
+        "channels": 3,
+        "depth": "uchar",
+        "premultiplied": false,
+        "hasAlpha": false,
+        "size": 2304
+      }
+    },
+    {
+      "file": "input (4).avif",
+      "info": {
+        "format": "raw",
+        "width": 32,
+        "height": 24,
+        "channels": 4,
+        "depth": "uchar",
+        "premultiplied": false,
+        "hasAlpha": true,
+        "size": 3072
+      }
+    },
+    {
+      "file": "input.avif",
+      "info": {
+        "format": "raw",
+        "width": 32,
+        "height": 24,
+        "channels": 3,
+        "depth": "uchar",
+        "premultiplied": false,
+        "hasAlpha": false,
+        "size": 2304
+      }
+    },
+    {
+      "file": "ppfc-fixture.avif",
+      "info": {
+        "format": "raw",
+        "width": 1280,
+        "height": 854,
+        "channels": 4,
+        "depth": "uchar",
+        "premultiplied": false,
+        "hasAlpha": true,
+        "size": 4372480
+      }
+    },
+    {
+      "file": "한글 이름.avif",
+      "info": {
+        "format": "raw",
+        "width": 32,
+        "height": 24,
+        "channels": 4,
+        "depth": "uchar",
+        "premultiplied": false,
+        "hasAlpha": true,
+        "size": 3072
+      }
+    }
+  ]
+}

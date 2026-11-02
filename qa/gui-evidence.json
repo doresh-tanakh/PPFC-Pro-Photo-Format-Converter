@@ -1,0 +1,36 @@
+{
+  "date": "2026-11-02",
+  "version": "1.0.8",
+  "installedApplication": "/Applications/PPFC.app",
+  "sourceMatchesInstalled": [
+    {
+      "file": "main.cjs",
+      "identical": true
+    },
+    {
+      "file": "preload.cjs",
+      "identical": true
+    },
+    {
+      "file": "renderer.js",
+      "identical": true
+    },
+    {
+      "file": "heif-decoder.cjs",
+      "identical": true
+    }
+  ],
+  "gui": {
+    "launch": "PASS",
+    "input": "HEIC",
+    "output": "qa/gui-output/ppfc-fixture.jpg",
+    "outputWidth": 1280,
+    "outputHeight": 854,
+    "outputFormat": "jpeg",
+    "completionPercent": 100,
+    "expectedSuccessCount": 1,
+    "displayedSuccessCount": 0,
+    "result": "FAIL: output generated, success count and row result lost"
+  },
+  "windows": "Native installer, launch and conversion not exercised in this macOS session"
+}

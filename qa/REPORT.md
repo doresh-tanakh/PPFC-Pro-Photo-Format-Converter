@@ -49,8 +49,8 @@ PNG→HEIF fails with the codec-unavailable message. The app always includes HEI
 
 ## Artifacts
 
-- `run.cjs`: repeatable integration harness, requires an extracted installed app path in `/private/tmp/ppfc-qa108-path` and the HEIC fixture.
+- `run.cjs`: integration harness, subsequently updated for v1.0.9 regression checks. The JSON files below preserve the historical v1.0.8 results.
 - `results.json`: current 1,000-distinct-file run.
 - `results-collision.json`: earlier repeated-name batch and independently validated AVIF results.
 - `gui-evidence.json`: native UI observation and source comparison.
-- `gui-output/ppfc-fixture.jpg`: JPEG produced by the installed GUI.
+- `gui-output/ppfc-fixture.jpg`: JPEG produced by the installed GUI, retained locally and not uploaded to the public repository. Dimensions and format are recorded in `gui-evidence.json`.
