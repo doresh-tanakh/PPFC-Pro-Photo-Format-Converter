@@ -97,6 +97,9 @@ app.whenReady().then(async () => {
           await document.getElementById('addFiles').onclick();
           await document.getElementById('chooseFolder').onclick();
           await document.getElementById('convert').onclick();
+          // The invoke response can arrive before the queued progress/done
+          // IPC messages. Observe the completed UI, not the invoke timing.
+          for(let i=0;i<100 && !document.getElementById('status').textContent.startsWith('완료');i++) await new Promise(resolve=>setTimeout(resolve,50));
           return {status:document.getElementById('status').textContent, results:[...document.querySelectorAll('.result')].map(x=>x.textContent), percent:document.getElementById('progressPercent').textContent, heifOption:!!document.querySelector('option[value="heif"]')};
         })()`);
         if (screen.status !== '완료 · 1장 변환됨' || screen.percent !== '100%' || screen.results.length !== 1 || !screen.results[0].startsWith('✓') || screen.heifOption) throw new Error(`Packaged UI smoke failed: ${JSON.stringify(screen)}`);
