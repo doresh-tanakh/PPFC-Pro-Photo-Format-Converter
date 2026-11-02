@@ -1,0 +1,10 @@
+'use strict';
+const {spawn} = require('node:child_process');
+const path = require('node:path');
+const binary=process.platform==='darwin'?'release/mac-arm64/PPFC.app/Contents/MacOS/PPFC':'release/win-unpacked/PPFC.exe';
+const child=spawn(path.resolve(binary),['--ppfc-qa-smoke'],{env:{...process.env,CI:'true'},stdio:['ignore','pipe','pipe']});
+let log='';
+child.stdout.on('data',d=>{log+=d;});child.stderr.on('data',d=>{log+=d;});
+const timer=setTimeout(()=>{child.kill();console.error('Packaged AVIF smoke timeout',log);process.exitCode=1;},45000);
+child.on('error',e=>{clearTimeout(timer);console.error(e);process.exitCode=1;});
+child.on('exit',code=>{clearTimeout(timer);console.log(log);if(code!==0||!log.includes('PPFC_QA_SMOKE_OK'))process.exitCode=1;});

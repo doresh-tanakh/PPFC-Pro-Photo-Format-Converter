@@ -2,11 +2,11 @@
 
 ## 다운로드
 
-- [macOS 설치 파일 (.pkg)](https://github.com/doresh-tanakh/PPFC-Pro-Photo-Format-Converter/releases/download/v1.0.8/PPFC-1.0.8-arm64.pkg)
-- [Windows 설치 파일 (.exe)](https://github.com/doresh-tanakh/PPFC-Pro-Photo-Format-Converter/releases/download/v1.0.8/PPFC.Setup.1.0.8.exe)
+- [macOS 설치 파일 (.pkg)](https://github.com/doresh-tanakh/PPFC-Pro-Photo-Format-Converter/releases/download/v1.0.9/PPFC-1.0.9-arm64.pkg)
+- [Windows 설치 파일 (.exe)](https://github.com/doresh-tanakh/PPFC-Pro-Photo-Format-Converter/releases/download/v1.0.9/PPFC.Setup.1.0.9.exe)
 - [모든 릴리스와 빌드 결과](https://github.com/doresh-tanakh/PPFC-Pro-Photo-Format-Converter/releases)
 
-v1.0.8 릴리스에서 macOS와 Windows 설치 파일을 직접 내려받을 수 있습니다.
+v1.0.9 릴리스에서 macOS와 Windows 설치 파일을 직접 내려받을 수 있습니다.
 
 macOS와 Windows용 로컬 이미지 일괄 변환기입니다. Electron + sharp/libvips를 사용하고 사진을 서버에 업로드하지 않습니다.
 
@@ -26,7 +26,7 @@ npm run dist:win   # Windows NSIS .exe 설치 파일 (Windows 호스트 권장)
 ## 기능
 
 - 다중 파일 선택 후 일괄 변환 (앱에서 설정한 개수 제한 없음, 한 장씩 처리)
-- JPG, PNG, WebP, AVIF, TIFF, GIF, HEIF 출력
+- JPG, PNG, WebP, AVIF, TIFF, GIF 출력
 - 사진이 프린터로 들어가는 PPFC 앱 아이콘
 - HEIC/HEIF 일괄 처리 시 WebAssembly 디코더를 재사용해 반복 변환 중 메모리 누적 방지
 - 선택 해제된 파일의 승인 토큰 회수 및 동일 파일 재선택 시 토큰 재사용
@@ -45,8 +45,13 @@ npm run dist:win   # Windows NSIS .exe 설치 파일 (Windows 호스트 권장)
 
 ## 포맷 지원 참고
 
-HEIC/HEIF 입력은 libheif-js 1.23.5 WebAssembly 디코더로 처리하므로 sharp 기본 바이너리의 HEVC 지원에 의존하지 않습니다. 안전을 위해 HEIC/HEIF는 200 MB 및 4천만 픽셀 한도를 둡니다. HEIF/HEIC 출력 인코딩은 sharp/libvips에 HEVC 인코더가 필요할 수 있어 배포 전에 각 플랫폼에서 확인해야 합니다. 모든 카메라 RAW 변형/특허 코덱 지원을 보장하지 않습니다.
+HEIC/HEIF 입력은 libheif-js 1.23.5 WebAssembly 디코더로 처리하므로 sharp 기본 바이너리의 HEVC 지원에 의존하지 않습니다. 안전을 위해 HEIC/HEIF는 200 MB 및 4천만 픽셀 한도를 둡니다. HEIF/HEIC는 입력만 지원하며 출력 메뉴에는 제공하지 않습니다. AVIF 입력은 별도 프로세스에서 30초 제한과 크기 검사를 적용해 처리합니다. 모든 카메라 RAW 변형/특허 코덱 지원을 보장하지 않습니다.
 
 ## 배포 보안 참고
 
 현재 잠금된 전체 의존성 트리에서 `npm audit` 취약점은 0건입니다. CI도 설치 과정에서 lockfile을 검증하고 전체 의존성 감사를 통과해야 패키징합니다. 입력 이미지는 로컬에서 처리하며 네트워크 요청을 차단합니다. 지원되지 않는 형식과 RAW 변형, 손상 파일, 일부 특허 코덱을 모두 처리한다고 보장하지 않습니다. macOS Developer ID 서명·공증과 Windows Authenticode 서명은 아직 적용되지 않아, 현재 설치 파일은 운영체제 경고가 표시될 수 있습니다.
+
+## QA 보고서
+
+- [v1.0.8에서 확인된 문제](qa/REPORT.md)
+- [v1.0.9 수정 및 재검증](qa/QA-1.0.9.md)

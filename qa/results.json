@@ -1,0 +1,256 @@
+{
+  "version": "1.0.8",
+  "source": "Extracted installed /Applications/PPFC.app app.asar; real bundled codecs; mocked Electron window/dialog/IPC transport",
+  "work": "/private/tmp/ppfc-qa-results-ilijyi",
+  "checks": [
+    {
+      "name": ".jpeg -> jpeg",
+      "status": "PASS"
+    },
+    {
+      "name": ".jpeg -> png",
+      "status": "PASS"
+    },
+    {
+      "name": ".jpeg -> webp",
+      "status": "PASS"
+    },
+    {
+      "name": ".jpeg -> avif",
+      "status": "PASS"
+    },
+    {
+      "name": ".jpeg -> tiff",
+      "status": "PASS"
+    },
+    {
+      "name": ".jpeg -> gif",
+      "status": "PASS"
+    },
+    {
+      "name": ".png -> jpeg",
+      "status": "PASS"
+    },
+    {
+      "name": ".png -> png",
+      "status": "PASS"
+    },
+    {
+      "name": ".png -> webp",
+      "status": "PASS"
+    },
+    {
+      "name": ".png -> avif",
+      "status": "PASS"
+    },
+    {
+      "name": ".png -> tiff",
+      "status": "PASS"
+    },
+    {
+      "name": ".png -> gif",
+      "status": "PASS"
+    },
+    {
+      "name": ".webp -> jpeg",
+      "status": "PASS"
+    },
+    {
+      "name": ".webp -> png",
+      "status": "PASS"
+    },
+    {
+      "name": ".webp -> webp",
+      "status": "PASS"
+    },
+    {
+      "name": ".webp -> avif",
+      "status": "PASS"
+    },
+    {
+      "name": ".webp -> tiff",
+      "status": "PASS"
+    },
+    {
+      "name": ".webp -> gif",
+      "status": "PASS"
+    },
+    {
+      "name": ".avif -> jpeg",
+      "status": "FAIL",
+      "error": "Input buffer contains unsupported image format\n\nfalse !== true\n"
+    },
+    {
+      "name": ".avif -> png",
+      "status": "FAIL",
+      "error": "Input buffer contains unsupported image format\n\nfalse !== true\n"
+    },
+    {
+      "name": ".avif -> webp",
+      "status": "FAIL",
+      "error": "Input buffer contains unsupported image format\n\nfalse !== true\n"
+    },
+    {
+      "name": ".avif -> avif",
+      "status": "FAIL",
+      "error": "Input buffer contains unsupported image format\n\nfalse !== true\n"
+    },
+    {
+      "name": ".avif -> tiff",
+      "status": "FAIL",
+      "error": "Input buffer contains unsupported image format\n\nfalse !== true\n"
+    },
+    {
+      "name": ".avif -> gif",
+      "status": "FAIL",
+      "error": "Input buffer contains unsupported image format\n\nfalse !== true\n"
+    },
+    {
+      "name": ".tiff -> jpeg",
+      "status": "PASS"
+    },
+    {
+      "name": ".tiff -> png",
+      "status": "PASS"
+    },
+    {
+      "name": ".tiff -> webp",
+      "status": "PASS"
+    },
+    {
+      "name": ".tiff -> avif",
+      "status": "PASS"
+    },
+    {
+      "name": ".tiff -> tiff",
+      "status": "PASS"
+    },
+    {
+      "name": ".tiff -> gif",
+      "status": "PASS"
+    },
+    {
+      "name": ".gif -> jpeg",
+      "status": "PASS"
+    },
+    {
+      "name": ".gif -> png",
+      "status": "PASS"
+    },
+    {
+      "name": ".gif -> webp",
+      "status": "PASS"
+    },
+    {
+      "name": ".gif -> avif",
+      "status": "PASS"
+    },
+    {
+      "name": ".gif -> tiff",
+      "status": "PASS"
+    },
+    {
+      "name": ".gif -> gif",
+      "status": "PASS"
+    },
+    {
+      "name": ".heic -> jpeg",
+      "status": "PASS"
+    },
+    {
+      "name": ".heic -> png",
+      "status": "PASS"
+    },
+    {
+      "name": ".heic -> webp",
+      "status": "PASS"
+    },
+    {
+      "name": ".heic -> avif",
+      "status": "PASS"
+    },
+    {
+      "name": ".heic -> tiff",
+      "status": "PASS"
+    },
+    {
+      "name": ".heic -> gif",
+      "status": "PASS"
+    },
+    {
+      "name": ".svg -> jpeg",
+      "status": "PASS"
+    },
+    {
+      "name": ".svg -> png",
+      "status": "PASS"
+    },
+    {
+      "name": ".svg -> webp",
+      "status": "PASS"
+    },
+    {
+      "name": ".svg -> avif",
+      "status": "PASS"
+    },
+    {
+      "name": ".svg -> tiff",
+      "status": "PASS"
+    },
+    {
+      "name": ".svg -> gif",
+      "status": "PASS"
+    },
+    {
+      "name": "1000 distinct files and monotonic progress",
+      "status": "PASS"
+    },
+    {
+      "name": "existing output not overwritten",
+      "status": "PASS"
+    },
+    {
+      "name": "resize 32x24 to 16x12",
+      "status": "PASS"
+    },
+    {
+      "name": "reject invalid dimensions and clean temp",
+      "status": "PASS"
+    },
+    {
+      "name": "reject unapproved file",
+      "status": "PASS"
+    },
+    {
+      "name": "reject untrusted IPC sender",
+      "status": "PASS"
+    },
+    {
+      "name": "reject modified approved input",
+      "status": "PASS"
+    },
+    {
+      "name": "reject revoked approval",
+      "status": "PASS"
+    },
+    {
+      "name": "corrupt input fails but next file succeeds",
+      "status": "PASS"
+    },
+    {
+      "name": "HEIF export availability",
+      "status": "FAIL",
+      "error": "이 포맷을 처리할 코덱이 설치 빌드에 없습니다.\n\nfalse !== true\n"
+    },
+    {
+      "name": "eight concurrent HEIC batch requests",
+      "status": "PASS"
+    },
+    {
+      "name": "protocol rejects unexpected origin/path",
+      "status": "PASS"
+    }
+  ],
+  "pass": 53,
+  "fail": 7
+}

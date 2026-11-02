@@ -7,6 +7,7 @@ const crypto = require('node:crypto');
 const { URL } = require('node:url');
 const sharp = require('sharp');
 const { createBoundedHeifDecoder } = require('./heif-decoder.cjs');
+const { decodeAvif } = require('./avif-process.cjs');
 
 protocol.registerSchemesAsPrivileged([{ scheme: 'ppfc', privileges: { standard: true, secure: true } }]);
 
@@ -16,7 +17,7 @@ const approvedByPath = new Map();
 let outputDir = null;
 let heifDecoder = null;
 let heifDecodeQueue = Promise.resolve();
-const FORMATS = new Set(['jpeg','png','webp','avif','tiff','gif','heif']);
+const FORMATS = new Set(['jpeg','png','webp','avif','tiff','gif']);
 const extFor = { jpeg:'.jpg', png:'.png', webp:'.webp', avif:'.avif', tiff:'.tiff', gif:'.gif', heif:'.heif' };
 const MAX_PIXELS = 40_000_000;
 const MAX_HEIF_PIXELS = MAX_PIXELS;
@@ -80,6 +81,32 @@ function createWindow() {
 app.whenReady().then(async () => {
   await registerAppProtocol();
   session.defaultSession.webRequest.onBeforeRequest({ urls: ['http://*/*', 'https://*/*', 'ws://*/*', 'wss://*/*'] }, (_details, callback) => callback({ cancel: true }));
+  if (process.env.CI === 'true' && process.argv.includes('--ppfc-qa-smoke')) {
+    try {
+      const bytes = await sharp({ create: { width: 16, height: 12, channels: 4, background: '#12345680' } }).avif().toBuffer();
+      const decoded = await decodeAvif(bytes);
+      if (decoded.width !== 16 || decoded.height !== 12) throw new Error('AVIF smoke dimensions');
+      const qaDir = await fs.mkdtemp(path.join(require('node:os').tmpdir(), 'ppfc-smoke-'));
+      try {
+        const input = path.join(qaDir, 'fixture.avif');
+        await fs.writeFile(input, bytes);
+        dialog.showOpenDialog = async (_window, options) => ({ canceled: false, filePaths: [options.properties.includes('openDirectory') ? qaDir : input] });
+        createWindow();
+        await new Promise((resolve, reject) => { win.webContents.once('did-finish-load', resolve); win.webContents.once('did-fail-load', (_event, code, message) => reject(new Error(`${code}: ${message}`))); });
+        const screen = await win.webContents.executeJavaScript(`(async()=>{
+          await document.getElementById('addFiles').onclick();
+          await document.getElementById('chooseFolder').onclick();
+          await document.getElementById('convert').onclick();
+          return {status:document.getElementById('status').textContent, results:[...document.querySelectorAll('.result')].map(x=>x.textContent), percent:document.getElementById('progressPercent').textContent, heifOption:!!document.querySelector('option[value="heif"]')};
+        })()`);
+        if (screen.status !== '완료 · 1장 변환됨' || screen.percent !== '100%' || screen.results.length !== 1 || !screen.results[0].startsWith('✓') || screen.heifOption) throw new Error(`Packaged UI smoke failed: ${JSON.stringify(screen)}`);
+        const output = await sharp(await fs.readFile(path.join(qaDir, 'fixture.jpg'))).metadata();
+        if (output.width !== 16 || output.height !== 12 || output.format !== 'jpeg') throw new Error('Packaged conversion output invalid');
+      } finally { await fs.rm(qaDir, { recursive: true, force: true }); }
+      console.log('PPFC_QA_SMOKE_OK'); app.exit(0);
+    } catch (error) { console.error(error); app.exit(1); }
+    return;
+  }
   createWindow();
 });
 app.on('window-all-closed', () => { if (process.platform !== 'darwin') app.quit(); });
@@ -148,8 +175,9 @@ ipcMain.handle('convert:batch', async (event, payload) => {
       const real = approved.path;
       const isHeif = ['.heic','.heif','.hif'].includes(path.extname(approved.path).toLowerCase());
       let source = real, sourceOptions = {}, meta, heifSource = false;
-      if (isHeif) {
-        const decoded = await decodeHeif(bytes);
+      const isAvif = ['.avif', '.avifs'].includes(path.extname(approved.path).toLowerCase());
+      if (isHeif || isAvif) {
+        const decoded = isAvif ? await decodeAvif(bytes) : await decodeHeif(bytes);
         source = Buffer.from(decoded.data.buffer, decoded.data.byteOffset, decoded.data.byteLength);
         sourceOptions = { raw: { width: decoded.width, height: decoded.height, channels: 4 } };
         meta = { width: decoded.width, height: decoded.height }; heifSource = true;
@@ -176,7 +204,6 @@ ipcMain.handle('convert:batch', async (event, payload) => {
       else if (payload.format === 'avif') pipeline = pipeline.avif({ quality: bounded(payload.quality, 70, 1, 100) });
       else if (payload.format === 'tiff') pipeline = pipeline.tiff({ quality: bounded(payload.quality, 90, 1, 100) });
       else if (payload.format === 'gif') pipeline = pipeline.gif();
-      else if (payload.format === 'heif') pipeline = pipeline.heif({ compression: 'hevc', quality: bounded(payload.quality, 90, 1, 100) });
       await pipeline.toFile(temp);
       let dest, suffix = 0;
       while (true) {

@@ -1,0 +1,253 @@
+{
+  "version": "1.0.9",
+  "source": "Workspace source; real codecs/filesystem; Electron transport mocked; AVIF worker runs in real Node child process",
+  "work": "/private/tmp/ppfc-qa-results-oXm94c",
+  "checks": [
+    {
+      "name": ".jpeg -> jpeg",
+      "status": "PASS"
+    },
+    {
+      "name": ".jpeg -> png",
+      "status": "PASS"
+    },
+    {
+      "name": ".jpeg -> webp",
+      "status": "PASS"
+    },
+    {
+      "name": ".jpeg -> avif",
+      "status": "PASS"
+    },
+    {
+      "name": ".jpeg -> tiff",
+      "status": "PASS"
+    },
+    {
+      "name": ".jpeg -> gif",
+      "status": "PASS"
+    },
+    {
+      "name": ".png -> jpeg",
+      "status": "PASS"
+    },
+    {
+      "name": ".png -> png",
+      "status": "PASS"
+    },
+    {
+      "name": ".png -> webp",
+      "status": "PASS"
+    },
+    {
+      "name": ".png -> avif",
+      "status": "PASS"
+    },
+    {
+      "name": ".png -> tiff",
+      "status": "PASS"
+    },
+    {
+      "name": ".png -> gif",
+      "status": "PASS"
+    },
+    {
+      "name": ".webp -> jpeg",
+      "status": "PASS"
+    },
+    {
+      "name": ".webp -> png",
+      "status": "PASS"
+    },
+    {
+      "name": ".webp -> webp",
+      "status": "PASS"
+    },
+    {
+      "name": ".webp -> avif",
+      "status": "PASS"
+    },
+    {
+      "name": ".webp -> tiff",
+      "status": "PASS"
+    },
+    {
+      "name": ".webp -> gif",
+      "status": "PASS"
+    },
+    {
+      "name": ".avif -> jpeg",
+      "status": "PASS"
+    },
+    {
+      "name": ".avif -> png",
+      "status": "PASS"
+    },
+    {
+      "name": ".avif -> webp",
+      "status": "PASS"
+    },
+    {
+      "name": ".avif -> avif",
+      "status": "PASS"
+    },
+    {
+      "name": ".avif -> tiff",
+      "status": "PASS"
+    },
+    {
+      "name": ".avif -> gif",
+      "status": "PASS"
+    },
+    {
+      "name": ".tiff -> jpeg",
+      "status": "PASS"
+    },
+    {
+      "name": ".tiff -> png",
+      "status": "PASS"
+    },
+    {
+      "name": ".tiff -> webp",
+      "status": "PASS"
+    },
+    {
+      "name": ".tiff -> avif",
+      "status": "PASS"
+    },
+    {
+      "name": ".tiff -> tiff",
+      "status": "PASS"
+    },
+    {
+      "name": ".tiff -> gif",
+      "status": "PASS"
+    },
+    {
+      "name": ".gif -> jpeg",
+      "status": "PASS"
+    },
+    {
+      "name": ".gif -> png",
+      "status": "PASS"
+    },
+    {
+      "name": ".gif -> webp",
+      "status": "PASS"
+    },
+    {
+      "name": ".gif -> avif",
+      "status": "PASS"
+    },
+    {
+      "name": ".gif -> tiff",
+      "status": "PASS"
+    },
+    {
+      "name": ".gif -> gif",
+      "status": "PASS"
+    },
+    {
+      "name": ".heic -> jpeg",
+      "status": "PASS"
+    },
+    {
+      "name": ".heic -> png",
+      "status": "PASS"
+    },
+    {
+      "name": ".heic -> webp",
+      "status": "PASS"
+    },
+    {
+      "name": ".heic -> avif",
+      "status": "PASS"
+    },
+    {
+      "name": ".heic -> tiff",
+      "status": "PASS"
+    },
+    {
+      "name": ".heic -> gif",
+      "status": "PASS"
+    },
+    {
+      "name": ".svg -> jpeg",
+      "status": "PASS"
+    },
+    {
+      "name": ".svg -> png",
+      "status": "PASS"
+    },
+    {
+      "name": ".svg -> webp",
+      "status": "PASS"
+    },
+    {
+      "name": ".svg -> avif",
+      "status": "PASS"
+    },
+    {
+      "name": ".svg -> tiff",
+      "status": "PASS"
+    },
+    {
+      "name": ".svg -> gif",
+      "status": "PASS"
+    },
+    {
+      "name": "1000 distinct files and monotonic progress",
+      "status": "PASS"
+    },
+    {
+      "name": "existing output not overwritten",
+      "status": "PASS"
+    },
+    {
+      "name": "resize 32x24 to 16x12",
+      "status": "PASS"
+    },
+    {
+      "name": "reject invalid dimensions and clean temp",
+      "status": "PASS"
+    },
+    {
+      "name": "reject unapproved file",
+      "status": "PASS"
+    },
+    {
+      "name": "reject untrusted IPC sender",
+      "status": "PASS"
+    },
+    {
+      "name": "reject modified approved input",
+      "status": "PASS"
+    },
+    {
+      "name": "reject revoked approval",
+      "status": "PASS"
+    },
+    {
+      "name": "corrupt input fails but next file succeeds",
+      "status": "PASS"
+    },
+    {
+      "name": "unsupported HEIF output excluded and rejected",
+      "status": "PASS"
+    },
+    {
+      "name": "disguised AVIF rejected and worker recovers",
+      "status": "PASS"
+    },
+    {
+      "name": "eight concurrent HEIC batch requests",
+      "status": "PASS"
+    },
+    {
+      "name": "protocol rejects unexpected origin/path",
+      "status": "PASS"
+    }
+  ],
+  "pass": 61,
+  "fail": 0
+}

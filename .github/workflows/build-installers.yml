@@ -34,6 +34,8 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
+      - name: Verify renderer completion results
+        run: node qa/renderer.cjs
       - name: Audit dependencies
         run: npm audit --audit-level=low
       - name: Build installer
@@ -56,6 +58,8 @@ jobs:
             echo "Packaged PPFC exited during startup"
             exit 1
           fi
+      - name: Verify packaged AVIF conversion and completion UI
+        run: node qa/packaged-smoke.cjs
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: ${{ matrix.artifact }}
