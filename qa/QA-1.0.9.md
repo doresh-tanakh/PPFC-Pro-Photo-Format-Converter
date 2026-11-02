@@ -24,6 +24,8 @@ Packaged CI verification: [run 41449180061](https://github.com/doresh-tanakh/PPF
 
 The first packaged run, [41448781965](https://github.com/doresh-tanakh/PPFC-Pro-Photo-Format-Converter/actions/runs/41448781965), observed the UI before the queued completion IPC messages arrived. A JPEG and success row existed, but the test sampled the running status. The CI-only smoke test now waits up to five seconds for completion; the rerun passed on both OSes. The failed run is retained for auditability.
 
+Release verification: [release workflow 41449658846](https://github.com/doresh-tanakh/PPFC-Pro-Photo-Format-Converter/actions/runs/41449658846) completed successfully. Both macOS and Windows passed the packaged checks again, and `publish-release` uploaded `PPFC-1.0.9-arm64.pkg` and `PPFC.Setup.1.0.9.exe`. Both files were confirmed as uploaded assets on the [v1.0.9 release page](https://github.com/doresh-tanakh/PPFC-Pro-Photo-Format-Converter/releases/tag/v1.0.9).
+
 ## Scope limits
 
 The batch fixtures are 32×24 images, not 1,000 large camera originals. The tests do not establish unlimited capacity, HDR/color fidelity, all RAW variants, animated AVIF support, clean-machine installation, Intel Mac compatibility or notarization. Windows packaged tests run on GitHub's runner, not on the user's PC. No Developer ID/Authenticode identity has been added.
