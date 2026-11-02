@@ -2,11 +2,11 @@
 
 ## 다운로드
 
-- [macOS 설치 파일 (.pkg)](https://github.com/doresh-tanakh/PPFC-Pro-Photo-Format-Converter/releases/download/v1.0.7/PPFC-1.0.7-arm64.pkg)
-- [Windows 설치 파일 (.exe)](https://github.com/doresh-tanakh/PPFC-Pro-Photo-Format-Converter/releases/download/v1.0.7/PPFC.Setup.1.0.7.exe)
+- [macOS 설치 파일 (.pkg)](https://github.com/doresh-tanakh/PPFC-Pro-Photo-Format-Converter/releases/download/v1.0.8/PPFC-1.0.8-arm64.pkg)
+- [Windows 설치 파일 (.exe)](https://github.com/doresh-tanakh/PPFC-Pro-Photo-Format-Converter/releases/download/v1.0.8/PPFC.Setup.1.0.8.exe)
 - [모든 릴리스와 빌드 결과](https://github.com/doresh-tanakh/PPFC-Pro-Photo-Format-Converter/releases)
 
-v1.0.7 릴리스에서 macOS와 Windows 설치 파일을 직접 내려받을 수 있습니다.
+v1.0.8 릴리스에서 macOS와 Windows 설치 파일을 직접 내려받을 수 있습니다.
 
 macOS와 Windows용 로컬 이미지 일괄 변환기입니다. Electron + sharp/libvips를 사용하고 사진을 서버에 업로드하지 않습니다.
 
