@@ -1,23 +1,63 @@
 'use strict';
-const { app, BrowserWindow, dialog, ipcMain } = require('electron');
+const { app, BrowserWindow, dialog, ipcMain, protocol, session } = require('electron');
 const path = require('node:path');
 const fs = require('node:fs/promises');
+const fsConstants = require('node:fs').constants;
 const crypto = require('node:crypto');
-const { pathToFileURL } = require('node:url');
+const { URL } = require('node:url');
 const sharp = require('sharp');
 
+protocol.registerSchemesAsPrivileged([{ scheme: 'ppfc', privileges: { standard: true, secure: true } }]);
+
 let win;
-const approvedFiles = new Set();
+const approvedFiles = new Map();
 let outputDir = null;
 const FORMATS = new Set(['jpeg','png','webp','avif','tiff','gif','heif']);
 const extFor = { jpeg:'.jpg', png:'.png', webp:'.webp', avif:'.avif', tiff:'.tiff', gif:'.gif', heif:'.heif' };
-const MAX_PIXELS = 160_000_000;
-const MAX_HEIF_PIXELS = 40_000_000;
-const APP_URL = pathToFileURL(path.join(__dirname, 'index.html')).href;
+const MAX_PIXELS = 40_000_000;
+const MAX_HEIF_PIXELS = MAX_PIXELS;
+const MAX_FILE_BYTES = 200_000_000;
+const MAX_ANIMATION_FRAMES = 500;
+const APP_URL = 'ppfc://app/index.html';
+const APP_FILES = new Map([
+  ['/index.html', [path.join(__dirname, 'index.html'), 'text/html; charset=utf-8']],
+  ['/renderer.js', [path.join(__dirname, 'renderer.js'), 'text/javascript; charset=utf-8']],
+  ['/styles.css', [path.join(__dirname, 'styles.css'), 'text/css; charset=utf-8']],
+  ['/assets/icon.svg', [path.join(__dirname, '..', 'assets', 'icon.svg'), 'image/svg+xml']],
+]);
+const CSP = "default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; frame-ancestors 'none'";
+
+// HEIC/HEIF input is decoded only by the WASM decoder below. This prevents a
+// disguised file from falling back to sharp/libvips' native HEIF loader.
+sharp.block({ operation: ['VipsForeignLoadHeif'] });
+sharp.cache({ memory: 32, files: 0, items: 50 });
+sharp.concurrency(2);
+
+// Do not expose file:// privileges to the renderer. Only serve the four static
+// resources that belong to this app, with an HTTP-style origin and CSP header.
+async function registerAppProtocol() {
+  protocol.handle('ppfc', async request => {
+    let url;
+    try { url = new URL(request.url); } catch { return new Response('Not found', { status: 404 }); }
+    const resource = APP_FILES.get(url.pathname);
+    if (url.host !== 'app' || request.method !== 'GET' || url.search || url.hash || !resource) {
+      return new Response('Not found', { status: 404, headers: { 'X-Content-Type-Options': 'nosniff' } });
+    }
+    try {
+      return new Response(await fs.readFile(resource[0]), { status: 200, headers: {
+        'Content-Type': resource[1], 'Content-Security-Policy': CSP,
+        'X-Content-Type-Options': 'nosniff', 'Referrer-Policy': 'no-referrer',
+        'Cache-Control': 'no-store',
+      } });
+    } catch {
+      return new Response('Not found', { status: 404, headers: { 'X-Content-Type-Options': 'nosniff' } });
+    }
+  });
+}
 
 function send(channel, data) { if (win && !win.isDestroyed()) win.webContents.send(channel, data); }
 function requireTrustedSender(event) {
-  if (!win || event.sender !== win.webContents || event.senderFrame !== event.sender.mainFrame || event.senderFrame.url !== APP_URL) {
+  if (!win || event.sender !== win.webContents || !event.senderFrame || event.senderFrame !== event.sender.mainFrame || event.senderFrame.url !== APP_URL) {
     throw new Error('허용되지 않은 앱 요청입니다.');
   }
 }
@@ -26,12 +66,18 @@ function createWindow() {
     webPreferences: { preload: path.join(__dirname, 'preload.cjs'), nodeIntegration: false, contextIsolation: true, sandbox: true, webSecurity: true }
   });
   win.webContents.session.setPermissionRequestHandler((_contents, _permission, callback) => callback(false));
+  win.webContents.session.setPermissionCheckHandler(() => false);
   win.webContents.on('will-attach-webview', e => e.preventDefault());
   win.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
-  win.webContents.on('will-navigate', e => e.preventDefault());
-  win.loadFile(path.join(__dirname, 'index.html'));
+  win.webContents.on('will-navigate', (e, url) => { if (url !== APP_URL) e.preventDefault(); });
+  win.webContents.on('will-redirect', (e, url) => { if (url !== APP_URL) e.preventDefault(); });
+  win.loadURL(APP_URL);
 }
-app.whenReady().then(createWindow);
+app.whenReady().then(async () => {
+  await registerAppProtocol();
+  session.defaultSession.webRequest.onBeforeRequest({ urls: ['http://*/*', 'https://*/*', 'ws://*/*', 'wss://*/*'] }, (_details, callback) => callback({ cancel: true }));
+  createWindow();
+});
 app.on('window-all-closed', () => { if (process.platform !== 'darwin') app.quit(); });
 app.on('activate', () => { if (BrowserWindow.getAllWindows().length === 0) createWindow(); });
 
@@ -40,26 +86,34 @@ ipcMain.handle('files:choose', async event => {
   const result = await dialog.showOpenDialog(win, { properties: ['openFile','multiSelections'], title: '사진 선택', filters: [{ name: '이미지 파일', extensions: ['jpg','jpeg','png','webp','avif','tif','tiff','gif','bmp','heic','heif','jp2','j2k','jxl','ppm','pgm','pbm','svg','raw','dng'] }] });
   if (result.canceled) return [];
   const list = [];
-  for (const p of result.filePaths) { try { const real = await fs.realpath(p); const st = await fs.stat(real); if (st.isFile() && st.size <= 2_000_000_000) { approvedFiles.add(real); list.push({ id: crypto.randomUUID(), path: real, name: path.basename(p), bytes: st.size }); } } catch {} }
+  for (const p of result.filePaths) { try {
+    const real = await fs.realpath(p), st = await fs.stat(real);
+    if (!st.isFile() || st.size > MAX_FILE_BYTES) continue;
+    const id = approveFile(real, st);
+    list.push({ id, path: real, name: path.basename(real), bytes: st.size });
+  } catch {} }
   return list;
 });
 ipcMain.handle('folder:choose', async event => {
   requireTrustedSender(event);
   const result = await dialog.showOpenDialog(win, { properties: ['openDirectory','createDirectory'], title: '저장 폴더 선택' });
   if (result.canceled || !result.filePaths[0]) return null;
-  outputDir = path.resolve(result.filePaths[0]); return outputDir;
+  const real = await fs.realpath(result.filePaths[0]);
+  if (!(await fs.stat(real)).isDirectory()) throw new Error('저장 폴더를 확인할 수 없습니다.');
+  outputDir = real; return outputDir;
 });
 ipcMain.handle('folder:get', event => { requireTrustedSender(event); return outputDir; });
-ipcMain.handle('files:approve-drop', async (event, paths) => {
+ipcMain.handle('files:approve-drop', async (event, items) => {
   requireTrustedSender(event);
-  if (!Array.isArray(paths)) return [];
+  if (!Array.isArray(items)) return [];
   const approved = [];
-  for (const value of paths) {
-    if (typeof value !== 'string' || value.length > 4096) continue;
+  for (const item of items) {
+    if (typeof item?.path !== 'string' || item.path.length > 4096) continue;
     try {
-      const p = path.resolve(value), real = await fs.realpath(p), st = await fs.stat(real);
-      if (!st.isFile() || st.size > 2_000_000_000) continue;
-      approvedFiles.add(p); approved.push(p);
+      const real = await fs.realpath(item.path), st = await fs.stat(real);
+      if (!st.isFile() || st.size > MAX_FILE_BYTES) continue;
+      const id = approveFile(real, st);
+      approved.push({ id, path: real, name: path.basename(real), bytes: st.size });
     } catch {}
   }
   return approved;
@@ -71,41 +125,39 @@ ipcMain.handle('convert:batch', async (event, payload) => {
   if (!FORMATS.has(payload.format)) throw new Error('지원하지 않는 출력 형식입니다.');
   if (!outputDir) throw new Error('먼저 저장 폴더를 선택해 주세요.');
   const od = await fs.realpath(outputDir);
+  if (od !== outputDir || !(await fs.stat(od)).isDirectory()) throw new Error('저장 폴더가 변경되었습니다. 다시 선택해 주세요.');
   const total = payload.items.length;
   let completed = 0;
   for (const item of payload.items) {
-    const p = path.resolve(String(item?.path || ''));
     const id = item?.id;
-    if (!approvedFiles.has(p)) { send('convert:result', { id, ok:false, error:'파일 선택을 다시 해 주세요.' }); completed++; send('convert:progress', { completed, total, percent: Math.round(completed * 100 / total) }); continue; }
-    let temp;
+    const approved = typeof id === 'string' ? approvedFiles.get(id) : null;
+    if (!approved || item.path !== approved.path) { send('convert:result', { id, ok:false, error:'파일 선택을 다시 해 주세요.' }); completed++; send('convert:progress', { completed, total, percent: Math.round(completed * 100 / total) }); continue; }
+    let temp, tempDir;
     try {
-      const stat = await fs.stat(p);
-      if (!stat.isFile() || stat.size > 2_000_000_000) throw new Error('파일 크기가 너무 크거나 일반 파일이 아닙니다. (최대 2 GB)');
-      const real = await fs.realpath(p);
-      const isHeif = ['.heic','.heif','.hif'].includes(path.extname(real).toLowerCase());
-      if (isHeif && stat.size > 200_000_000) throw new Error('HEIC/HEIF 파일은 안전을 위해 200 MB 이하만 처리합니다.');
+      const { bytes } = await readApprovedFile(approved);
+      const real = approved.path;
+      const isHeif = ['.heic','.heif','.hif'].includes(path.extname(approved.path).toLowerCase());
       let source = real, sourceOptions = {}, meta, heifSource = false;
       if (isHeif) {
-        const decoded = await decodeHeif(real);
-        // sharp takes the pixel buffer as its first argument and raw layout in
-        // the second argument. Passing { input, raw } as the first argument is
-        // not a supported sharp input and prevents every HEIC conversion.
+        const decoded = await decodeHeif(bytes);
         source = Buffer.from(decoded.data.buffer, decoded.data.byteOffset, decoded.data.byteLength);
         sourceOptions = { raw: { width: decoded.width, height: decoded.height, channels: 4 } };
         meta = { width: decoded.width, height: decoded.height }; heifSource = true;
       } else {
-        meta = await sharp(real, { limitInputPixels: MAX_PIXELS, failOn: 'error', animated: payload.format === 'gif' }).metadata();
+        meta = await sharp(bytes, { limitInputPixels: MAX_PIXELS, failOn: 'error', animated: true }).metadata();
       }
-      const pixelLimit = isHeif ? MAX_HEIF_PIXELS : MAX_PIXELS;
-      if (!meta.width || !meta.height || meta.width * meta.height > pixelLimit) throw new Error(`이미지 크기가 안전 한도(${isHeif ? '4천만' : '1억 6천만'} 픽셀)를 넘었습니다.`);
-      let outName = path.basename(item.name || p, path.extname(item.name || p)).replace(/[\u0000-\u001f<>:"/\\|?*]/g, '_').trim().slice(0, 160) || 'image';
+      const pages = Number(meta.pages ?? 1);
+      const frameHeight = Number(meta.pageHeight) || (pages > 1 ? Math.floor(meta.height / pages) : meta.height);
+      if (!Number.isSafeInteger(meta.width) || !Number.isSafeInteger(frameHeight) || !Number.isSafeInteger(pages) || meta.width < 1 || frameHeight < 1 || pages < 1 || pages > MAX_ANIMATION_FRAMES || meta.width * frameHeight * pages > MAX_PIXELS) {
+        throw new Error(`이미지 크기 또는 프레임 수가 안전 한도(${MAX_PIXELS.toLocaleString('ko-KR')} 픽셀, ${MAX_ANIMATION_FRAMES}프레임)를 넘었습니다.`);
+      }
+      let outName = path.basename(approved.path, path.extname(approved.path)).replace(/[\u0000-\u001f<>:"/\\|?*]/g, '_').trim().slice(0, 160) || 'image';
       const ext = extFor[payload.format];
-      let dest = path.join(od, outName + ext), suffix = 1;
-      while (true) { try { await fs.access(dest); dest = path.join(od, `${outName} (${suffix++})${ext}`); } catch { break; } }
-      temp = path.join(od, `.ppfc-${crypto.randomUUID()}.tmp`);
+      tempDir = await fs.mkdtemp(path.join(od, '.ppfc-'));
+      temp = path.join(tempDir, `output${ext}`);
       const width = safeDimension(payload.width), height = safeDimension(payload.height);
-      if (width && height && width * height > MAX_PIXELS) throw new Error('출력 크기는 최대 1억 6천만 픽셀까지 가능합니다.');
-      let pipeline = sharp(source, { ...sourceOptions, limitInputPixels: MAX_PIXELS, failOn: 'error', animated: payload.format === 'gif' });
+      if (width && height && width * height > MAX_PIXELS) throw new Error(`출력 크기는 최대 ${MAX_PIXELS.toLocaleString('ko-KR')} 픽셀까지 가능합니다.`);
+      let pipeline = sharp(source === real ? bytes : source, { ...sourceOptions, limitInputPixels: MAX_PIXELS, failOn: 'error', animated: payload.format === 'gif' });
       if (!heifSource) pipeline = pipeline.rotate();
       if (width || height) pipeline = pipeline.resize({ width: width || undefined, height: height || undefined, fit: 'inside', withoutEnlargement: true });
       if (payload.format === 'jpeg') pipeline = pipeline.flatten({ background: payload.background || '#ffffff' }).jpeg({ quality: bounded(payload.quality, 90, 1, 100), mozjpeg: true });
@@ -116,20 +168,23 @@ ipcMain.handle('convert:batch', async (event, payload) => {
       else if (payload.format === 'gif') pipeline = pipeline.gif();
       else if (payload.format === 'heif') pipeline = pipeline.heif({ compression: 'hevc', quality: bounded(payload.quality, 90, 1, 100) });
       await pipeline.toFile(temp);
-      await fs.link(temp, dest); // exclusive creation: never overwrite an existing file
-      await fs.unlink(temp); temp = null;
+      let dest, suffix = 0;
+      while (true) {
+        dest = path.join(od, suffix ? `${outName} (${suffix})${ext}` : `${outName}${ext}`);
+        try { await fs.link(temp, dest); break; }
+        catch (error) { if (error.code !== 'EEXIST') throw error; suffix++; }
+      }
+      await fs.rm(tempDir, { recursive: true, force: true }); temp = null; tempDir = null;
       send('convert:result', { id, ok:true, output:path.basename(dest) });
-    } catch (e) { if (temp) await fs.unlink(temp).catch(()=>{}); send('convert:result', { id, ok:false, error: conciseError(e) }); }
+    } catch (e) { if (tempDir) await fs.rm(tempDir, { recursive: true, force: true }).catch(()=>{}); send('convert:result', { id, ok:false, error: conciseError(e) }); }
     completed++;
     send('convert:progress', { completed, total, percent: Math.round(completed * 100 / total) });
   }
   send('convert:done', {}); return true;
 });
-async function decodeHeif(filePath) {
-  // Use the self-contained WASM bundle: libheif-js/wasm reads its .wasm file
-  // relative to process.cwd(), which is not stable in packaged desktop apps.
+async function decodeHeif(bytes) {
+  // The self-contained WebAssembly decoder avoids sharp's native HEIF parser.
   const libheif = require('libheif-js/wasm-bundle');
-  const bytes = await fs.readFile(filePath);
   const images = new libheif.HeifDecoder().decode(bytes);
   if (!Array.isArray(images) || !images.length) throw new Error('HEIC/HEIF 이미지에서 사진을 찾지 못했습니다.');
   const image = images[0];
@@ -140,6 +195,36 @@ async function decodeHeif(filePath) {
     await new Promise((resolve, reject) => image.display({ data, width, height }, result => result ? resolve() : reject(new Error('HEIC/HEIF 픽셀 디코딩에 실패했습니다.'))));
     return { data, width, height };
   } finally { for (const frame of images) if (typeof frame.free === 'function') frame.free(); }
+}
+function approveFile(filePath, stat) {
+  const id = crypto.randomUUID();
+  approvedFiles.set(id, { path: filePath, size: stat.size, dev: String(stat.dev), ino: String(stat.ino), mtimeMs: stat.mtimeMs, ctimeMs: stat.ctimeMs });
+  return id;
+}
+async function readApprovedFile(approved) {
+  const currentPath = await fs.realpath(approved.path);
+  if (currentPath !== approved.path) throw new Error('선택한 파일의 경로가 변경되었습니다. 다시 선택해 주세요.');
+  const handle = await fs.open(currentPath, fsConstants.O_RDONLY);
+  try {
+    const before = await handle.stat();
+    if (!before.isFile() || before.size > MAX_FILE_BYTES || before.size !== approved.size || String(before.dev) !== approved.dev || String(before.ino) !== approved.ino || before.mtimeMs !== approved.mtimeMs || before.ctimeMs !== approved.ctimeMs) {
+      throw new Error('선택한 파일이 변경되었거나 안전 한도(200 MB)를 넘었습니다. 다시 선택해 주세요.');
+    }
+    // Read into a fixed-size buffer derived from the approved size. A file that
+    // grows after fstat cannot make readFile allocate unbounded memory.
+    const buffer = Buffer.allocUnsafe(approved.size + 1);
+    let offset = 0;
+    while (offset < buffer.length) {
+      const { bytesRead } = await handle.read(buffer, offset, buffer.length - offset, null);
+      if (!bytesRead) break;
+      offset += bytesRead;
+    }
+    if (offset !== approved.size) throw new Error('변환 중 원본 파일 크기가 변경되었습니다.');
+    const bytes = buffer.subarray(0, offset);
+    const after = await handle.stat();
+    if (after.size !== before.size || after.mtimeMs !== before.mtimeMs || after.ctimeMs !== before.ctimeMs) throw new Error('변환 중 원본 파일이 변경되었습니다.');
+    return { bytes, stat: after };
+  } finally { await handle.close(); }
 }
 function bounded(v, fallback, min, max) { const n = Number(v); return Number.isFinite(n) ? Math.max(min, Math.min(max, Math.round(n))) : fallback; }
 function safeDimension(value) {
